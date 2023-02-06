@@ -10,7 +10,7 @@ To create a database with MongoDB:
 2) Click on "Create" to create a new database
 3) Choose the service that you would want to use (depending on the data)
 
-TESTING ROUTES USING POSTMAN:
+TESTING ROUTES using Postman:
 
 To test your routes on Postman:
 

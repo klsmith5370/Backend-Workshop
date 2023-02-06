@@ -6,7 +6,30 @@ const User = require("../models/User");
 // creating a route endpoint - retrieving all users
 const getUsers = async (req, res, next) => {
     try {
-        const result = await User.find()
+        // query parameter
+        // const filter = {};
+        const options = {};
+
+        // check if the req query is empty?
+        if (Object.keys(req.query).length) {
+            const {
+                sortByFirstName,
+                limit
+            } = req.query
+
+            // set up our pagination (so not so much data is not being thrown)
+            if (limit) options.limit = limit
+
+            // setting up the sorting of the property
+            if (sortByFirstName) options.sort = {
+                firstName: sortByFirstName === "asc" ? 1 : -1 // 1 is ascending, -1 is descending
+            }
+
+        }
+
+
+        const result = await User.find({}, {}, options);
+
         res
         .status(200)
         .setHeader("Content-Type", "application/json")
@@ -19,24 +42,23 @@ const getUsers = async (req, res, next) => {
 // creating a new user
 const createUser = async (req, res, next) => {
     try {
-        const result = await User.create(req.body)
+        const user = await User.create(req.body)
+        const token = user.getSignedJwtToken()
+
+        const options = {
+            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 1000 * 60)
+        }
 
         res
         .status(200)
         .setHeader("Content-Type", "application/json")
-        .json(result)
+        .cookie("token", token, options)
+        .json({ success: true, token, user })
     } catch (error) {
         throw new Error(`Error creating a user: ${error.message}`)
     }
 }
 
-// const deleteUser = async (req, res, next) {
-    
-// }
-
-// const getUser = async (req, res, next) {
-    
-// }
 
 module.exports = {
     getUsers,
